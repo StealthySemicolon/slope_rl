@@ -5,6 +5,7 @@ import numpy as np
 screen = cv2.VideoCapture(0)
 
 class SlopeGame:
+    observation_space = (800, 600, 3)
     def __init__(self):
         self.screen = cv2.VideoCapture(0)
         self.LEFT = 'left'

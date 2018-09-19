@@ -4,7 +4,7 @@ import gym
 import numpy as np
 from collections import deque
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Conv2D, MaxPool2D
 from keras.optimizers import Adam
 
 EPISODES = 1000
@@ -25,7 +25,8 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
+        model.add(Conv2D(64, (3, 3), input_shape=(self.state_size[0], self.state_size[1], self.state_size[2])))
+        # TODO: MAKE CONVNET
         model.add(Dense(24, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
@@ -63,8 +64,8 @@ class DQNAgent:
 
 if __name__ == "__main__":
     env = gym.make('CartPole-v1')
-    state_size = env.observation_space.shape[0]
-    action_size = env.action_space.n
+    state_size = env.observation_space
+    action_size = env.action_space[1]
     agent = DQNAgent(state_size, action_size)
     # agent.load("./save/cartpole-dqn.h5")
     done = False
@@ -72,7 +73,7 @@ if __name__ == "__main__":
 
     for e in range(EPISODES):
         state = env.reset()
-        state = np.reshape(state, [1, state_size])
+        state = np.reshape(state, [1,] + state_size)
         for time in range(500):
             env.render()
             action = agent.act(state)

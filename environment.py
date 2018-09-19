@@ -1,27 +1,51 @@
 import cv2
 import keyboard
 import numpy as np
-
-screen = cv2.VideoCapture(0)
+import mss
 
 class SlopeGame:
-    observation_space = (800, 600, 3)
+    observation_space = [800, 600, 3]
+    action_space = [-1, 3]
     def __init__(self):
-        self.screen = cv2.VideoCapture(0)
+        self.screen = mss.mss()
+        self.monitor = {"top": 112, "left": 1, "width": 800, "height": 600}
         self.LEFT = 'left'
         self.RIGHT = 'right'
         self.NONE = 'up'
+        self.reset_key = 'enter'
         self.pressed = self.NONE
-    def conv_action_to_input(self, action):
+    def get_screen(self):
+        img = np.array(self.screen.grab(self.monitor))
+        return img
+    def input_action(self, action):
         max_idx = np.argmax(action)
         if max_idx == 0:
-            return self.LEFT
+            cvrtd_action = self.LEFT
         if max_idx == 1:
-            return self.NONE
+            cvrtd_action = self.NONE
         if max_idx == 2:
-            return self.RIGHT
-    def act(self, cvrtd_action):
+            cvrtd_action = self.RIGHT
         keyboard.release(self.pressed)
         keyboard.press(cvrtd_action)
         self.pressed = cvrtd_action
-        
+    def reset(self):
+        keyboard.release(self.pressed)
+        self.pressed = self.NONE
+        keyboard.press(self.pressed)
+        keyboard.press_and_release(self.reset_key)
+        return self.get_screen()
+    def render(self):
+        cv2.imshow("Frame", self.get_screen())
+        cv2.waitKey(1)
+    def check_done(self):
+        img = self.get_screen()
+        if img[300][275][0] == 255 and img[300][275][1] == 255 and img[300][275][2] == 255:
+            return True
+        else:
+            return False
+    def step(self, action):
+        self.input_action(action)
+        next_state = self.get_screen() / 255
+        done = self.check_done()
+        reward = -100 if done else 1
+        return next_state, reward, done, "hi"

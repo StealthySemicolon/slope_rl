@@ -1,14 +1,30 @@
-import numpy as np
-import cv2
-from PIL import ImageGrab as ig
 import time
 
-last_time = time.time()
-while(True):
-    screen = ig.grab(bbox=(50,50,800,640))
-    print('Loop took {} seconds',format(1/(time.time()-last_time)))
-    cv2.imshow("test", np.array(screen))
-    last_time = time.time()
-    if cv2.waitKey(25) & 0xFF == ord('q'):
-        cv2.destroyAllWindows()
-        break
+import cv2
+import mss
+import numpy
+
+
+with mss.mss() as sct:
+    # Part of the screen to capture
+    monitor = {"top": 112, "left": 1, "width": 800, "height": 600}
+
+    while "Screen capturing":
+        last_time = time.time()
+
+        # Get raw pixels from the screen, save it to a Numpy array
+        img = cv2.cvtColor(numpy.array(sct.grab(monitor)), cv2.COLOR_RGBA2RGB)
+        
+
+        # Display the picture
+        cv2.imshow("OpenCV/Numpy normal", img)
+
+        # Display the picture in grayscale
+        # cv2.imshow('OpenCV/Numpy grayscale',
+        #            cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY))
+
+
+        # Press "q" to quit
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            cv2.destroyAllWindows()
+            break

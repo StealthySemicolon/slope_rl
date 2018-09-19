@@ -15,7 +15,8 @@ with mss.mss() as sct:
         # Get raw pixels from the screen, save it to a Numpy array
         img = cv2.cvtColor(numpy.array(sct.grab(monitor)), cv2.COLOR_RGBA2RGB)
         
-
+        img = cv2.resize(img, (200, 150))
+        img = cv2.resize(img, (800, 600))
         # Display the picture
         cv2.imshow("OpenCV/Numpy normal", img)
 

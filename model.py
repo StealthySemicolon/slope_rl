@@ -38,6 +38,7 @@ class Model:
         self.model = tf.layers.dense(self.model, 10, activation=tf.nn.elu)
 
         self.logits = tf.layers.dense(self.model, num_categories)
+        self.logits = tf.multiply(self.logits, 1, name="logits")
         self.softmax = tf.nn.softmax(self.logits)
 
         self.output = tf.multiply(self.softmax, 1, name="output")
@@ -45,8 +46,21 @@ class Model:
 
         self.loss = tf.nn.softmax_cross_entropy_with_logits(self.logits, self.y_true)
         self.optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.loss)
+
+        self.saver = tf.train.Saver(max_to_keep=1)
     def fit(self, X, y, epochs=10):
         for _ in range(epochs):
             self.sess.run(self.optimizer, feed_dict={self.input:X, self.y_true:y})
     def predict(self, X):
         return self.sess.run(self.output, feed_dict={self.input:X})
+    def save(self, folder_name):
+        self.saver.save(self.sess, folder_name + "/model")
+    def load(self, folder_name):
+        self.saver = tf.train.import_meta_graph(folder_name + "/model")
+        self.saver.restore(self.sess, tf.train.latest_checkpoint(folder_name))
+        graph = tf.get_default_graph()
+        self.input = graph.get_tensor_by_name("input:0")
+        self.is_train = graph.get_tensor_by_name("is_train:0")
+        self.logits = graph.get_tensor_by_name("logits:0")
+        self.output = graph.get_tensor_by_name("output:0")
+        self.y_true = graph.get_tesnor_by_name("y_true:0")

@@ -9,7 +9,7 @@ class SlopeGame:
     action_space = [-1, 3]
     def __init__(self):
         self.screen = mss.mss()
-        self.monitor = {"top": 112, "left": 1, "width": 800, "height": 600}
+        self.monitor = {"top": 111, "left": 1, "width": 800, "height": 600}
         self.LEFT = 'left'
         self.RIGHT = 'right'
         self.NONE = 'up'
@@ -19,10 +19,10 @@ class SlopeGame:
         img = cv2.cvtColor(np.array(self.screen.grab(self.monitor)), cv2.COLOR_RGBA2RGB)
         return img
     def input_action(self, action):
-        max_idx = np.argmax(action)
-        if max_idx == 0:
-            cvrtd_action = self.LEFT
+        max_idx = action
         if max_idx == 1:
+            cvrtd_action = self.LEFT
+        if max_idx == 0:
             cvrtd_action = self.NONE
         if max_idx == 2:
             cvrtd_action = self.RIGHT

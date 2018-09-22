@@ -44,13 +44,15 @@ class Model:
         self.output = tf.multiply(self.softmax, 1, name="output")
         self.y_true = tf.placeholder(tf.float32, [None, num_categories], name="y_true")
 
-        self.loss = tf.nn.softmax_cross_entropy_with_logits(self.logits, self.y_true)
+        self.loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits, labels=self.y_true)
         self.optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.loss)
 
         self.saver = tf.train.Saver(max_to_keep=1)
+
+        self.sess.run(tf.global_variables_initializer())
     def fit(self, X, y, epochs=10):
         for _ in range(epochs):
-            self.sess.run(self.optimizer, feed_dict={self.input:X, self.y_true:y})
+            self.sess.run(self.optimizer, feed_dict={self.input:X, self.y_true:y, self.is_train:True})
     def predict(self, X):
         return self.sess.run(self.output, feed_dict={self.input:X})
     def save(self, folder_name):
